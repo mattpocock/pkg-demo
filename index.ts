@@ -8,3 +8,15 @@ export class Add {
     return this.a + this.b;
   }
 }
+
+export class Subtract {
+  constructor ( private numbers: Array<number> ) {
+    this.numbers = [];
+  }
+
+  run (): number {
+    return this.numbers.reduce( ( previousNumber: number, currentNumber: number ) => {
+      return previousNumber - currentNumber;
+    }, 0 );
+  }
+}
