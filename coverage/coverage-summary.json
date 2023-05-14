@@ -1,0 +1,3 @@
+{"total": {"lines":{"total":73,"covered":66,"skipped":0,"pct":90.41},"statements":{"total":80,"covered":72,"skipped":0,"pct":90},"functions":{"total":17,"covered":14,"skipped":0,"pct":82.35},"branches":{"total":59,"covered":49,"skipped":0,"pct":83.05},"branchesTrue":{"total":0,"covered":0,"skipped":0,"pct":"Unknown"}}
+,"/Users/hoqua/Desktop/work/youtube/use-local-storate-safe/src/index.ts": {"lines":{"total":73,"covered":66,"skipped":0,"pct":90.41},"functions":{"total":17,"covered":14,"skipped":0,"pct":82.35},"statements":{"total":80,"covered":72,"skipped":0,"pct":90},"branches":{"total":59,"covered":49,"skipped":0,"pct":83.05}}
+}
