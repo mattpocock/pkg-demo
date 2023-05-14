@@ -17,3 +17,6 @@ dist
 /.changeset/tidy-mice-impress.md
 /.idea/use-local-storate-safe.iml
 /.idea/vcs.xml
+/lib/index.d.ts
+/lib/index.js
+/lib/index.mjs

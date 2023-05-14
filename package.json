@@ -6,13 +6,20 @@
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc && tsup src/index.ts --format cjs,esm --dts",
+    "build": "tsup src/index.ts",
     "release": "pnpm run build && changeset publish",
-    "lint": "eslint --ext=.ts,.tsx ./",
+    "lint": "tsc && eslint --ext=.ts,.tsx ./",
     "test": "jest",
     "test:coverage": "npm test -- --coverage",
     "test:badges": "npm run test:coverage  && jest-coverage-badges"
   },
+  "files": [
+    "dist/index.js",
+    "dist/index.mjs",
+    "dist/index.d.ts",
+    "LICENSE",
+    "README.md"
+  ],
   "devDependencies": {
     "@changesets/cli": "^2.26.0",
     "@testing-library/jest-dom": "^5.16.5",
@@ -44,6 +51,6 @@
     "use-sync-external-store": "^1.2.0"
   },
   "peerDependencies": {
-    "react": ">=16.8.0"
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
   }
 }
