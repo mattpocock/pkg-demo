@@ -1,6 +1,4 @@
-import {
-  render,
-} from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { ExternalStore, useLocalStorageSafe } from "../src";
 import { useEffect } from "react";
 import React from "react";

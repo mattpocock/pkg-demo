@@ -65,18 +65,17 @@ export class ExternalStore<T> {
 
     if (!this.canGetStoreValue(key)) {
       this.setItem(key, defaultValue as T);
-      return; // here we exit if no value was in store or store not functioning
+      return;
     }
 
-    if (typeof options?.validate === "function") {
-      const storageValue = this.getParseableStorageItem<T>(key);
-      const isValid = options.validate(storageValue as T);
+    if (typeof options?.validate !== "function") return;
+    const storageValue = this.getParseableStorageItem<T>(key);
+    const isValid = options.validate(storageValue as T);
 
-      if (!isValid && defaultValue) {
-        this.setStorageItem<T>(key, defaultValue);
-      } else if (!isValid && !defaultValue) {
-        localStorage.removeItem(key);
-      }
+    if (!isValid && defaultValue) {
+      this.setStorageItem<T>(key, defaultValue);
+    } else if (!isValid && !defaultValue) {
+      localStorage.removeItem(key);
     }
   }
 
@@ -92,8 +91,7 @@ export class ExternalStore<T> {
 
   public getSnapshot(key: string) {
     if (!ExternalStore.inMemory.has(key)) {
-      const storageValue = this.getParseableStorageItem<T>(key);
-      ExternalStore.inMemory.set(key, storageValue);
+      ExternalStore.inMemory.set(key, this.getParseableStorageItem<T>(key));
     }
 
     return ExternalStore.inMemory.get(key) as T;
@@ -109,7 +107,7 @@ export class ExternalStore<T> {
     };
 
     if (ExternalStore.listeners.has(key)) {
-      ExternalStore.listeners.get(key)?.add(listener);
+      ExternalStore.listeners.get(key)!.add(listener);
     } else {
       ExternalStore.listeners.set(key, new Set([listener]));
     }
@@ -122,12 +120,12 @@ export class ExternalStore<T> {
       window.removeEventListener("storage", handleStorageChange);
 
       if (ExternalStore.listeners.has(key)) {
-        ExternalStore.listeners.get(key)?.delete(listener);
+        ExternalStore.listeners.get(key)!.delete(listener);
       }
     };
   }
 
-  public notifyListeners(key: string) {
+  private notifyListeners(key: string) {
     const listeners = ExternalStore.listeners.get(key);
     if (listeners) {
       for (const listener of listeners) {
@@ -148,8 +146,6 @@ export class ExternalStore<T> {
   private getParseableStorageItem<T>(key: string): T | null | undefined {
     let value = null;
 
-    console.log('getParseableStorageItem')
-
     try {
       value = localStorage.getItem(key);
     } catch (error) {
@@ -168,7 +164,7 @@ export class ExternalStore<T> {
     }
   }
 
-  public canGetStoreValue(key: string): boolean {
+  private canGetStoreValue(key: string): boolean {
     try {
       return localStorage.getItem(key) !== null;
     } catch (error) {

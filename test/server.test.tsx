@@ -9,7 +9,7 @@ import React, { useEffect } from "react";
 import { useLocalStorageSafe } from "../src";
 import "@testing-library/jest-dom/extend-expect";
 import * as mock from "../src/server-store-mock";
-import {getStoreMock} from "../src/server-store-mock";
+import { getStoreMock } from "../src/server-store-mock";
 
 const SSR_TEST_KEY = "server-side-test-key";
 function Component(properties: {
@@ -30,7 +30,6 @@ function Component(properties: {
 }
 
 describe("Server side render", () => {
-
   it("should return default value", () => {
     const defaultValue = "server default";
 
@@ -81,7 +80,7 @@ describe("Server side render", () => {
     expect(calls).toBe(0);
   });
 
-  describe('server store mock', function () {
+  describe("server store mock", function () {
     it("should use serverStoreMock", () => {
       const spy = jest.spyOn(mock, "getStoreMock");
 
@@ -91,7 +90,7 @@ describe("Server side render", () => {
     });
 
     it("serverStoreMock should return subscription function", () => {
-      expect(getStoreMock().subscribe()).toStrictEqual(expect.any(Function))
+      expect(getStoreMock().subscribe()).toStrictEqual(expect.any(Function));
     });
   });
 });

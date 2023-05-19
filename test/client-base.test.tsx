@@ -263,15 +263,15 @@ describe("Client side", () => {
               silent: false,
               log: logSpy,
               stringify: () => {
-                throw new Error()
-              }
+                throw new Error("unable to set item");
+              },
             });
           } catch (error) {
             return error;
           }
         });
 
-        expect(logSpy).toBeCalledWith(expect.any(Error));
+        expect(logSpy).toHaveBeenCalledWith(expect.any(Error));
         expect(result.current).toStrictEqual(expect.any(Error));
       });
     });
@@ -313,23 +313,10 @@ describe("Client side", () => {
     }
   });
 
-  describe("localStorage storage events ", function () {
+  describe("localStorage storage events", function () {
     const STORAGE_EVENT_KEY = "STORAGE_EVENT_KEY";
     const STORAGE_EVENT_DEFAULT_VALUE = "STORAGE_EVENT_DEFAULT_VALUE";
     const STORAGE_EVENT_NEW_VALUE = "STORAGE_EVENT_NEW_VALUE";
-    const dispatchStorageEvent = (key: string, value: unknown) => {
-      const newValue = JSON.stringify(value);
-      localStorage.setItem(key, newValue);
-
-      fireEvent(
-        window,
-        new StorageEvent("storage", {
-          key,
-          storageArea: localStorage,
-          newValue,
-        })
-      );
-    };
 
     it("should update state on storage event with no default", () => {
       const { result } = renderHook(() =>
@@ -367,7 +354,7 @@ describe("Client side", () => {
       expect(result.current[0]).toStrictEqual(STORAGE_EVENT_NEW_VALUE);
     });
 
-    it("should not react on storage event if {tabSync:false} ", () => {
+    it("should not react on storage event if {tabSync:false}", () => {
       const { result } = renderHook(() =>
         useLocalStorageSafe(STORAGE_EVENT_KEY, STORAGE_EVENT_DEFAULT_VALUE, {
           tabSync: false,
@@ -384,7 +371,7 @@ describe("Client side", () => {
 
   it("supports dynamic key", () => {
     let key = "dynamic-key-1";
-    let key2 = "dynamic-key-2";
+    const key2 = "dynamic-key-2";
     const DYNAMIC_KEY_VALUE = "DYNAMIC_KEY_VALUE";
 
     const { rerender } = renderHook(() =>
@@ -402,4 +389,35 @@ describe("Client side", () => {
       JSON.stringify(DYNAMIC_KEY_VALUE)
     );
   });
+
+  describe("listeners", function () {
+    const LISTENERS_KEY = "LISTENERS_KEY";
+    it("should register listener", () => {
+      renderHook(() => useLocalStorageSafe(LISTENERS_KEY));
+
+      expect(ExternalStore.listeners.get(LISTENERS_KEY)?.size).toBe(1);
+    });
+
+    it("should unregister listener on unmount", () => {
+      const { unmount } = renderHook(() => useLocalStorageSafe(LISTENERS_KEY));
+
+      unmount();
+
+      expect(ExternalStore.listeners.get(LISTENERS_KEY)?.size).toBe(0);
+    });
+  });
 });
+
+const dispatchStorageEvent = (key: string, value: unknown) => {
+  const newValue = JSON.stringify(value);
+  localStorage.setItem(key, newValue);
+
+  fireEvent(
+    window,
+    new StorageEvent("storage", {
+      key,
+      storageArea: localStorage,
+      newValue,
+    })
+  );
+};

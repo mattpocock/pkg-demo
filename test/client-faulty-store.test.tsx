@@ -1,4 +1,4 @@
-import {act, renderHook} from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import { ExternalStore, useLocalStorageSafe } from "../src";
 
 describe("Client faulty store", function () {
@@ -43,41 +43,41 @@ describe("Client faulty store", function () {
         }
       });
 
-      expect(logSpy).toBeCalledWith(errorGetItem);
+      expect(logSpy).toHaveBeenCalledWith(errorGetItem);
       expect(result.current).toBe(errorGetItem);
     });
 
     it("should throw and log error if unable to set item", function () {
-      Storage.prototype.getItem = () => null // move to setItem path
+      Storage.prototype.getItem = () => null; // move to setItem path
       const { result } = renderHook(() => {
         try {
           useLocalStorageSafe<string>(
-              FAULTY_STORE_KEY,
-              FAULTY_STORE_DEFAULT_VALUE,
-              {
-                silent: false,
-                log: logSpy,
-              }
-          );
-        } catch (error) {
-          return error;
-        }
-      });
-      expect(logSpy).toBeCalledWith(errorSetItem);
-      expect(result.current).toBe(errorSetItem);
-    });
-
-    it("should throw and log error if unable to get item via getParseableStorageItem", function () {
-      Storage.prototype.getItem = () => null
-      Storage.prototype.setItem = () => null
-      const { result } = renderHook(() => {
-        return useLocalStorageSafe<string>(
             FAULTY_STORE_KEY,
             FAULTY_STORE_DEFAULT_VALUE,
             {
               silent: false,
               log: logSpy,
             }
+          );
+        } catch (error) {
+          return error;
+        }
+      });
+      expect(logSpy).toHaveBeenCalledWith(errorSetItem);
+      expect(result.current).toBe(errorSetItem);
+    });
+
+    it("should throw and log error if unable to get item via getParseableStorageItem", function () {
+      Storage.prototype.getItem = () => null;
+      Storage.prototype.setItem = () => null;
+      const { result } = renderHook(() => {
+        return useLocalStorageSafe<string>(
+          FAULTY_STORE_KEY,
+          FAULTY_STORE_DEFAULT_VALUE,
+          {
+            silent: false,
+            log: logSpy,
+          }
         );
       });
 
@@ -85,10 +85,11 @@ describe("Client faulty store", function () {
         throw errorGetItem;
       });
 
-      ExternalStore.listeners.clear()
-      const [, setValue] = result.current
-      expect(setValue(() => 'throw anyway val')).toThrowError(errorGetItem)
-      expect(true).toBeTruthy()
+      ExternalStore.inMemory.clear();
+      const [, setValue] = result.current;
+
+      expect(() => setValue(() => "should throw")).toThrow(errorGetItem);
+      expect(true).toBeTruthy();
     });
   });
 
@@ -107,8 +108,8 @@ describe("Client faulty store", function () {
       const [value] = result.current;
 
       expect(value).toBe(FAULTY_STORE_DEFAULT_VALUE);
-      expect(logSpy).toBeCalledWith(errorGetItem);
-      expect(logSpy).toBeCalledWith(errorSetItem);
+      expect(logSpy).toHaveBeenCalledWith(errorGetItem);
+      expect(logSpy).toHaveBeenCalledWith(errorSetItem);
     });
 
     it("should put undefined default value inMemory", function () {
@@ -121,8 +122,8 @@ describe("Client faulty store", function () {
       const [value] = result.current;
 
       expect(value).toBe(undefined);
-      expect(logSpy).toBeCalledWith(errorGetItem);
-      expect(logSpy).toBeCalledWith(errorSetItem);
+      expect(logSpy).toHaveBeenCalledWith(errorGetItem);
+      expect(logSpy).toHaveBeenCalledWith(errorSetItem);
     });
 
     it("should skip validation and just set default", function () {
@@ -141,12 +142,12 @@ describe("Client faulty store", function () {
 
       expect(value).toBe(FAULTY_STORE_DEFAULT_VALUE);
       expect(validateSpy).not.toHaveBeenCalled();
-      expect(logSpy).toBeCalledWith(errorGetItem);
-      expect(logSpy).toBeCalledWith(errorSetItem);
+      expect(logSpy).toHaveBeenCalledWith(errorGetItem);
+      expect(logSpy).toHaveBeenCalledWith(errorSetItem);
     });
 
     it("should setItem inMemory", function () {
-      const NEW_STORE_VALUE = 'NEW_STORE_VALUE'
+      const NEW_STORE_VALUE = "NEW_STORE_VALUE";
       const { result } = renderHook(() =>
         useLocalStorageSafe<string>(
           FAULTY_STORE_KEY,
