@@ -10,12 +10,19 @@
     "lint:fix"
   ],
   "scripts": {
-    "build": "tsup src/index.ts",
+    "build": "tsup src/index.ts --minify",
     "release": "pnpm run build && changeset publish",
     "lint": "tsc && eslint --ext=.ts,.tsx ./",
     "lint:fix": "pnpm run lint --fix",
     "test": "jest",
     "test:badges": "npm test  && jest-coverage-badges"
+  },
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
   },
   "files": [
     "dist/index.js",
