@@ -1,9 +1,15 @@
-import "node:util";
-import { render } from "@testing-library/react";
+/**
+ * @jest-environment node
+ */
+
+// ^ Must be at top of file
+
 import Server from "react-dom/server";
-import React from "react";
+import React, { useEffect } from "react";
 import { useLocalStorageSafe } from "../src";
 import "@testing-library/jest-dom/extend-expect";
+import * as mock from "../src/server-store-mock";
+import {getStoreMock} from "../src/server-store-mock";
 
 const SSR_TEST_KEY = "server-side-test-key";
 function Component(properties: {
@@ -24,20 +30,6 @@ function Component(properties: {
 }
 
 describe("Server side render", () => {
-  it("should hydrate", () => {
-    const defaultValue = "successfully hydrated";
-
-    const component = (
-      <Component storageKey={SSR_TEST_KEY} storageDefaultValue={defaultValue} />
-    );
-
-    const container = document.createElement("div");
-    document.body.append(container);
-    container.innerHTML = Server.renderToString(component);
-    const { baseElement } = render(component, { hydrate: true, container });
-
-    expect(baseElement.textContent).toBe(defaultValue);
-  });
 
   it("should return default value", () => {
     const defaultValue = "server default";
@@ -69,5 +61,37 @@ describe("Server side render", () => {
     );
 
     expect(result).toEqual(defaultValue);
+  });
+
+  it(`should call not useEffect`, () => {
+    let calls = 0;
+
+    function Component() {
+      useLocalStorageSafe("test-key");
+
+      useEffect(() => {
+        calls++;
+      });
+
+      return null;
+    }
+
+    Server.renderToString(<Component />);
+
+    expect(calls).toBe(0);
+  });
+
+  describe('server store mock', function () {
+    it("should use serverStoreMock", () => {
+      const spy = jest.spyOn(mock, "getStoreMock");
+
+      Server.renderToString(<Component storageKey={SSR_TEST_KEY} />);
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it("serverStoreMock should return subscription function", () => {
+      expect(getStoreMock().subscribe()).toStrictEqual(expect.any(Function))
+    });
   });
 });

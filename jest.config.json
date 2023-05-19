@@ -2,7 +2,7 @@
     "collectCoverage": true,
     "coverageDirectory": "coverage",
     "coverageReporters": [
-        "json-summary"
+        "json-summary", "html"
     ],
     "testEnvironment": "jsdom",
     "setupFilesAfterEnv": ["<rootDir>/jest.setup.ts"],

@@ -1,5 +1,6 @@
-import { Dispatch, SetStateAction, useCallback, useRef } from "react";
+import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
 import useSyncExternalStoreExports from "use-sync-external-store/shim";
+import { getStoreMock } from "./server-store-mock";
 const { useSyncExternalStore } = useSyncExternalStoreExports;
 
 interface Options<T> {
@@ -8,13 +9,8 @@ interface Options<T> {
   log?: (message: unknown) => void;
   validate?: (value: T) => boolean;
   tabSync?: boolean;
+  silent?: boolean;
 }
-
-export function useLocalStorageSafe<T>(
-  key: string,
-  defaultValue?: undefined,
-  options?: Options<T>
-): [T | undefined, Dispatch<SetStateAction<T | undefined>>];
 
 export function useLocalStorageSafe<T>(
   key: string,
@@ -27,11 +23,13 @@ export function useLocalStorageSafe<T>(
   defaultValue?: T,
   options?: Options<T>
 ): [T | undefined, Dispatch<SetStateAction<T>>] {
-  const store = useRef(
-    typeof window === "undefined"
-      ? serverMock
-      : new ExternalStore<T>(key, defaultValue, options)
-  ).current;
+  const store = useMemo(
+    () =>
+      typeof window === "undefined"
+        ? getStoreMock()
+        : new ExternalStore<T>(key, defaultValue, options),
+    [key, defaultValue, options]
+  );
 
   const storageValue = useSyncExternalStore(
     useCallback((listener) => store.subscribe(listener, key), [store, key]),
@@ -39,10 +37,13 @@ export function useLocalStorageSafe<T>(
     () => defaultValue
   );
 
-  const setStorageValue = (value: SetStateAction<T>) =>
-    store.setItem(key, value);
-
-  return [storageValue, setStorageValue];
+  return [
+    storageValue,
+    useCallback(
+      (value: SetStateAction<T>) => store.setItem(key, value),
+      [key, store]
+    ),
+  ];
 }
 
 export class ExternalStore<T> {
@@ -53,23 +54,22 @@ export class ExternalStore<T> {
   private readonly parse: (string: string) => string = JSON.parse;
   private readonly log: (message: unknown) => void = console.log;
   private readonly tabSync: boolean = true;
+  private readonly silent: boolean = true;
 
   public constructor(key: string, defaultValue?: T, options?: Options<T>) {
     if (options?.log) this.log = options.log;
     if (options?.parse) this.parse = options.parse;
     if (options?.stringify) this.stringify = options.stringify;
     if (options?.tabSync === false) this.tabSync = options.tabSync;
+    if (options?.silent === false) this.silent = options.silent;
 
-    const storageValue = this.getParseableStorageItem<T>(key);
-
-    if (
-      (storageValue === null || storageValue === undefined) &&
-      defaultValue !== undefined
-    ) {
-      this.setStorageItem<T>(key, defaultValue);
+    if (!this.canGetStoreValue(key)) {
+      this.setItem(key, defaultValue as T);
+      return; // here we exit if no value was in store or store not functioning
     }
 
     if (typeof options?.validate === "function") {
+      const storageValue = this.getParseableStorageItem<T>(key);
       const isValid = options.validate(storageValue as T);
 
       if (!isValid && defaultValue) {
@@ -84,6 +84,7 @@ export class ExternalStore<T> {
     const value = isFunction<T>(valueOrFunction)
       ? valueOrFunction(this.getSnapshot(key))
       : valueOrFunction;
+
     this.setStorageItem(key, value);
     ExternalStore.inMemory.set(key, value);
     this.notifyListeners(key);
@@ -102,6 +103,7 @@ export class ExternalStore<T> {
     const handleStorageChange = (event: StorageEvent) => {
       if (event.storageArea === localStorage && event.key === key) {
         ExternalStore.inMemory.set(key, this.getParseableStorageItem(key));
+
         this.notifyListeners(key);
       }
     };
@@ -134,20 +136,28 @@ export class ExternalStore<T> {
     }
   }
 
-  private setStorageItem<T>(key: string, value: T) {
+  private setStorageItem<T>(key: string, value: T | undefined) {
     try {
-      localStorage.setItem(key, this.stringify(value));
+      return localStorage.setItem(key, this.stringify(value));
     } catch (error) {
       this.log(error);
-      throw error;
+      if (!this.silent) throw error;
     }
   }
 
   private getParseableStorageItem<T>(key: string): T | null | undefined {
-    const value = localStorage.getItem(key);
+    let value = null;
 
-    if (value === null) return null;
-    if (value === "undefined") return undefined;
+    console.log('getParseableStorageItem')
+
+    try {
+      value = localStorage.getItem(key);
+    } catch (error) {
+      this.log(error);
+      if (!this.silent) throw error;
+    }
+
+    if (value === null || value === "undefined") return undefined;
 
     try {
       return this.parse(value) as T;
@@ -157,6 +167,16 @@ export class ExternalStore<T> {
       return null;
     }
   }
+
+  public canGetStoreValue(key: string): boolean {
+    try {
+      return localStorage.getItem(key) !== null;
+    } catch (error) {
+      this.log(error);
+      if (!this.silent) throw error;
+      return false;
+    }
+  }
 }
 
 function isFunction<T>(
@@ -164,10 +184,3 @@ function isFunction<T>(
 ): valueOrFunction is (value: T) => boolean {
   return typeof valueOrFunction === "function";
 }
-
-const voidFunction = () => void 0;
-const serverMock = {
-  subscribe: () => voidFunction,
-  getSnapshot: voidFunction,
-  setItem: voidFunction,
-};

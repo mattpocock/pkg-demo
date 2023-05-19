@@ -1,5 +1,4 @@
-import "node:util";
-import { act, renderHook } from "@testing-library/react";
+import { act, fireEvent, renderHook } from "@testing-library/react";
 import { ExternalStore, useLocalStorageSafe } from "../src";
 
 describe("Client side", () => {
@@ -28,14 +27,14 @@ describe("Client side", () => {
       );
     });
 
-    it("should not write to state or localStorage when undefined", () => {
+    it("should write undefined to localStorage if it empty and no default value", () => {
       const { result } = renderHook(() =>
         useLocalStorageSafe(DEFAULT_VALUE_KEY)
       );
       const [value] = result.current;
 
-      expect(value).toBe(null);
-      expect(localStorage.getItem(DEFAULT_VALUE_KEY)).toBe(null);
+      expect(value).toBe(undefined);
+      expect(localStorage.getItem(DEFAULT_VALUE_KEY)).toBe("undefined");
     });
 
     it("should not overwrite existing value", () => {
@@ -98,8 +97,11 @@ describe("Client side", () => {
 
     it("should use supplied parser", () => {
       const parserSpy = jest.fn();
+      localStorage.setItem(OPTIONS_KEY, JSON.stringify(OPTIONS_DEFAULT_VALUE));
       renderHook(() =>
-        useLocalStorageSafe<string>(OPTIONS_KEY, "", { parse: parserSpy })
+        useLocalStorageSafe<string>(OPTIONS_KEY, OPTIONS_DEFAULT_VALUE, {
+          parse: parserSpy,
+        })
       );
 
       expect(parserSpy).toHaveBeenCalledTimes(1);
@@ -177,7 +179,7 @@ describe("Client side", () => {
         );
       });
 
-      it("should validate empty storageItem on init and replace with default", () => {
+      it("should not validate empty storageItem on init and replace with default", () => {
         const validateSpy = jest.fn().mockReturnValue(true);
 
         const { result } = renderHook(() =>
@@ -191,11 +193,10 @@ describe("Client side", () => {
         expect(localStorage.getItem(OPTIONS_KEY)).toBe(
           JSON.stringify(OPTIONS_DEFAULT_VALUE)
         );
-        expect(validateSpy).toHaveBeenCalledTimes(1);
-        expect(validateSpy).toHaveBeenCalledWith(null);
+        expect(validateSpy).toHaveBeenCalledTimes(0);
       });
 
-      it("should validate empty storageItem on init with no default", () => {
+      it("should not validate empty storageItem and init default (undefined)", () => {
         const validateSpy = jest.fn().mockReturnValue(true);
 
         const { result } = renderHook(() =>
@@ -205,10 +206,9 @@ describe("Client side", () => {
         );
 
         const [value] = result.current;
-        expect(value).toBe(null);
-        expect(localStorage.getItem(OPTIONS_KEY)).toBe(null);
-        expect(validateSpy).toHaveBeenCalledTimes(1);
-        expect(validateSpy).toHaveBeenCalledWith(null);
+        expect(value).toBe(undefined);
+        expect(localStorage.getItem(OPTIONS_KEY)).toBe("undefined");
+        expect(validateSpy).not.toHaveBeenCalled();
       });
 
       it("should clear store on invalid item and no default", () => {
@@ -225,7 +225,7 @@ describe("Client side", () => {
         );
 
         const [value] = result.current;
-        expect(value).toBe(null);
+        expect(value).toBe(undefined);
         expect(localStorage.getItem(OPTIONS_KEY)).toBe(null);
         expect(validateSpy).toHaveBeenCalledTimes(1);
         expect(validateSpy).toHaveBeenCalledWith(OPTIONS_EXISTING_STORE_ITEM);
@@ -251,6 +251,28 @@ describe("Client side", () => {
         );
         expect(validateSpy).toHaveBeenCalledTimes(1);
         expect(validateSpy).toHaveBeenCalledWith(OPTIONS_EXISTING_STORE_ITEM);
+      });
+    });
+
+    describe("silent:false", function () {
+      it("should throw and log error if unable to set item", function () {
+        const logSpy = jest.fn();
+        const { result } = renderHook(() => {
+          try {
+            useLocalStorageSafe<string>(OPTIONS_KEY, OPTIONS_DEFAULT_VALUE, {
+              silent: false,
+              log: logSpy,
+              stringify: () => {
+                throw new Error()
+              }
+            });
+          } catch (error) {
+            return error;
+          }
+        });
+
+        expect(logSpy).toBeCalledWith(expect.any(Error));
+        expect(result.current).toStrictEqual(expect.any(Error));
       });
     });
   });
@@ -289,5 +311,95 @@ describe("Client side", () => {
         expect(value).toBe(test.result);
       });
     }
+  });
+
+  describe("localStorage storage events ", function () {
+    const STORAGE_EVENT_KEY = "STORAGE_EVENT_KEY";
+    const STORAGE_EVENT_DEFAULT_VALUE = "STORAGE_EVENT_DEFAULT_VALUE";
+    const STORAGE_EVENT_NEW_VALUE = "STORAGE_EVENT_NEW_VALUE";
+    const dispatchStorageEvent = (key: string, value: unknown) => {
+      const newValue = JSON.stringify(value);
+      localStorage.setItem(key, newValue);
+
+      fireEvent(
+        window,
+        new StorageEvent("storage", {
+          key,
+          storageArea: localStorage,
+          newValue,
+        })
+      );
+    };
+
+    it("should update state on storage event with no default", () => {
+      const { result } = renderHook(() =>
+        useLocalStorageSafe(STORAGE_EVENT_KEY)
+      );
+
+      dispatchStorageEvent(STORAGE_EVENT_KEY, STORAGE_EVENT_NEW_VALUE);
+
+      expect(result.current[0]).toStrictEqual(STORAGE_EVENT_NEW_VALUE);
+    });
+
+    it("should update state on storage event with default value", () => {
+      const { result } = renderHook(() =>
+        useLocalStorageSafe(STORAGE_EVENT_KEY, STORAGE_EVENT_DEFAULT_VALUE)
+      );
+
+      dispatchStorageEvent(STORAGE_EVENT_KEY, STORAGE_EVENT_NEW_VALUE);
+
+      expect(result.current[0]).toStrictEqual(STORAGE_EVENT_NEW_VALUE);
+    });
+
+    it("should not react on unrelated event", () => {
+      const { result } = renderHook(() =>
+        useLocalStorageSafe(STORAGE_EVENT_KEY, STORAGE_EVENT_DEFAULT_VALUE)
+      );
+
+      act(() => {
+        dispatchStorageEvent(STORAGE_EVENT_KEY, STORAGE_EVENT_NEW_VALUE);
+        dispatchStorageEvent(
+          STORAGE_EVENT_KEY + "_UNRELATED",
+          STORAGE_EVENT_NEW_VALUE + "_UNRELATED"
+        );
+      });
+
+      expect(result.current[0]).toStrictEqual(STORAGE_EVENT_NEW_VALUE);
+    });
+
+    it("should not react on storage event if {tabSync:false} ", () => {
+      const { result } = renderHook(() =>
+        useLocalStorageSafe(STORAGE_EVENT_KEY, STORAGE_EVENT_DEFAULT_VALUE, {
+          tabSync: false,
+        })
+      );
+
+      act(() =>
+        dispatchStorageEvent(STORAGE_EVENT_KEY, STORAGE_EVENT_NEW_VALUE)
+      );
+
+      expect(result.current[0]).toStrictEqual(STORAGE_EVENT_DEFAULT_VALUE);
+    });
+  });
+
+  it("supports dynamic key", () => {
+    let key = "dynamic-key-1";
+    let key2 = "dynamic-key-2";
+    const DYNAMIC_KEY_VALUE = "DYNAMIC_KEY_VALUE";
+
+    const { rerender } = renderHook(() =>
+      useLocalStorageSafe(key, DYNAMIC_KEY_VALUE)
+    );
+
+    key = key2;
+
+    rerender();
+
+    expect(localStorage.getItem(key)).toStrictEqual(
+      JSON.stringify(DYNAMIC_KEY_VALUE)
+    );
+    expect(localStorage.getItem(key2)).toStrictEqual(
+      JSON.stringify(DYNAMIC_KEY_VALUE)
+    );
   });
 });
