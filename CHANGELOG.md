@@ -1,5 +1,11 @@
 # use-local-storage-safe
 
+## 0.1.0
+
+### Minor Changes
+
+- e895f7a: Added basic readme and minified build
+
 ## 0.0.3
 
 ### Patch Changes
