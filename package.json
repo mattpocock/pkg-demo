@@ -1,11 +1,14 @@
 {
   "name": "use-local-storage-safe",
   "license": "MIT",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-  "pre-commit": ["build", "lint:fix"],
+  "pre-commit": [
+    "build",
+    "lint:fix"
+  ],
   "scripts": {
     "build": "tsup src/index.ts",
     "release": "pnpm run build && changeset publish",
