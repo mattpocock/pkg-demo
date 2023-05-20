@@ -7,11 +7,19 @@ interface Options<T> {
   stringify?: (value: unknown) => string;
   parse?: (string: string) => string;
   log?: (message: unknown) => void;
-  validate?: (value: T) => boolean;
-  tabSync?: boolean;
+  validateInit?: (value: T) => boolean;
+  sync?: boolean;
   silent?: boolean;
 }
 
+/**
+ * A custom React hook that allows safe access and manipulation of values in local storage.
+ * @template T - The type of the state value.
+ * @param {string} key - The key under which the state value will be stored in the local storage.
+ * @param {T} [defaultValue] - The initial value for the state. If the key does not exist in the local storage, this value will be used as the default.
+ * @param {Options<T>} [options] - An object containing additional customization options for the hook.
+ * @returns {[T, SetStateAction<T>]} - A tuple with the current state value and a function to update it.
+ */
 export function useLocalStorageSafe<T>(
   key: string,
   defaultValue?: T,
@@ -53,14 +61,14 @@ export class ExternalStore<T> {
   private readonly stringify: (value: unknown) => string = JSON.stringify;
   private readonly parse: (string: string) => string = JSON.parse;
   private readonly log: (message: unknown) => void = console.log;
-  private readonly tabSync: boolean = true;
+  private readonly sync : boolean = true;
   private readonly silent: boolean = true;
 
   public constructor(key: string, defaultValue?: T, options?: Options<T>) {
     if (options?.log) this.log = options.log;
     if (options?.parse) this.parse = options.parse;
     if (options?.stringify) this.stringify = options.stringify;
-    if (options?.tabSync === false) this.tabSync = options.tabSync;
+    if (options?.sync === false) this.sync = options.sync;
     if (options?.silent === false) this.silent = options.silent;
 
     if (!this.canGetStoreValue(key)) {
@@ -68,9 +76,11 @@ export class ExternalStore<T> {
       return;
     }
 
-    if (typeof options?.validate !== "function") return;
-    const storageValue = this.getParseableStorageItem<T>(key);
-    const isValid = options.validate(storageValue as T);
+    if (typeof options?.validateInit !== "function") {
+      return;
+    }
+
+    const isValid = options.validateInit(this.getParseableStorageItem<T>(key) as T);
 
     if (!isValid && defaultValue) {
       this.setStorageItem<T>(key, defaultValue);
@@ -112,7 +122,7 @@ export class ExternalStore<T> {
       ExternalStore.listeners.set(key, new Set([listener]));
     }
 
-    if (this.tabSync) {
+    if (this.sync) {
       window.addEventListener("storage", handleStorageChange);
     }
 
@@ -180,3 +190,5 @@ function isFunction<T>(
 ): valueOrFunction is (value: T) => boolean {
   return typeof valueOrFunction === "function";
 }
+
+

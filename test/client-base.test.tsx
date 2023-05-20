@@ -148,7 +148,7 @@ describe("Client side", () => {
 
         renderHook(() =>
           useLocalStorageSafe<string>(OPTIONS_KEY, OPTIONS_DEFAULT_VALUE, {
-            tabSync: false,
+            sync: false,
           })
         );
 
@@ -166,7 +166,7 @@ describe("Client side", () => {
 
         const { result } = renderHook(() =>
           useLocalStorageSafe<string>(OPTIONS_KEY, OPTIONS_DEFAULT_VALUE, {
-            validate: validateSpy,
+            validateInit: validateSpy,
           })
         );
 
@@ -184,7 +184,7 @@ describe("Client side", () => {
 
         const { result } = renderHook(() =>
           useLocalStorageSafe<string>(OPTIONS_KEY, OPTIONS_DEFAULT_VALUE, {
-            validate: validateSpy,
+            validateInit: validateSpy,
           })
         );
 
@@ -201,7 +201,7 @@ describe("Client side", () => {
 
         const { result } = renderHook(() =>
           useLocalStorageSafe<string>(OPTIONS_KEY, undefined, {
-            validate: validateSpy,
+            validateInit: validateSpy,
           })
         );
 
@@ -220,7 +220,7 @@ describe("Client side", () => {
 
         const { result } = renderHook(() =>
           useLocalStorageSafe<string>(OPTIONS_KEY, undefined, {
-            validate: validateSpy,
+            validateInit: validateSpy,
           })
         );
 
@@ -240,7 +240,7 @@ describe("Client side", () => {
 
         const { result } = renderHook(() =>
           useLocalStorageSafe<string>(OPTIONS_KEY, OPTIONS_DEFAULT_VALUE, {
-            validate: validateSpy,
+            validateInit: validateSpy,
           })
         );
 
@@ -357,7 +357,7 @@ describe("Client side", () => {
     it("should not react on storage event if {tabSync:false}", () => {
       const { result } = renderHook(() =>
         useLocalStorageSafe(STORAGE_EVENT_KEY, STORAGE_EVENT_DEFAULT_VALUE, {
-          tabSync: false,
+          sync: false,
         })
       );
 

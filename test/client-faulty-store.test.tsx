@@ -133,7 +133,7 @@ describe("Client faulty store", function () {
           FAULTY_STORE_DEFAULT_VALUE,
           {
             log: logSpy,
-            validate: validateSpy,
+            validateInit: validateSpy,
           }
         )
       );
