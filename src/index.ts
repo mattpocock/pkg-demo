@@ -61,7 +61,7 @@ export class ExternalStore<T> {
   private readonly stringify: (value: unknown) => string = JSON.stringify;
   private readonly parse: (string: string) => string = JSON.parse;
   private readonly log: (message: unknown) => void = console.log;
-  private readonly sync : boolean = true;
+  private readonly sync: boolean = true;
   private readonly silent: boolean = true;
 
   public constructor(key: string, defaultValue?: T, options?: Options<T>) {
@@ -80,7 +80,9 @@ export class ExternalStore<T> {
       return;
     }
 
-    const isValid = options.validateInit(this.getParseableStorageItem<T>(key) as T);
+    const isValid = options.validateInit(
+      this.getParseableStorageItem<T>(key) as T
+    );
 
     if (!isValid && defaultValue) {
       this.setStorageItem<T>(key, defaultValue);
@@ -190,5 +192,3 @@ function isFunction<T>(
 ): valueOrFunction is (value: T) => boolean {
   return typeof valueOrFunction === "function";
 }
-
-
