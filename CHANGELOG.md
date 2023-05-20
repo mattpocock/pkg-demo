@@ -1,5 +1,12 @@
 # use-local-storage-safe
 
+## 0.1.1
+
+### Patch Changes
+
+- 8795e1d: lint
+- cb48ada: Added examples to readme and minor updates
+
 ## 0.1.0
 
 ### Minor Changes
