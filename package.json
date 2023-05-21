@@ -1,7 +1,14 @@
 {
-  "name": "use-local-storage-safe",
-  "license": "MIT",
   "version": "0.1.1",
+  "license": "MIT",
+  "name": "use-local-storage-safe",
+  "description": "React hook for using LocalStorage safely",
+  "repository": "https://github.com/hoqua/use-local-storage-safe",
+  "homepage": "https://github.com/hoqua/use-local-storage-safe",
+  "author": {
+    "name": "Dmitrii Zolotuhin",
+    "email": "dmitrii.zolotukhin@gmail.com"
+  },
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -64,5 +71,16 @@
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
-  }
+  },
+  "keywords": [
+    "react",
+    "hook",
+    "localStorage",
+    "persistent",
+    "state",
+    "useState",
+    "hooks",
+    "local storage",
+    "store"
+  ]
 }

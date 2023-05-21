@@ -354,7 +354,7 @@ describe("Client side", () => {
       expect(result.current[0]).toStrictEqual(STORAGE_EVENT_NEW_VALUE);
     });
 
-    it("should not react on storage event if {tabSync:false}", () => {
+    it("should not react on storage event if {sync:false}", () => {
       const { result } = renderHook(() =>
         useLocalStorageSafe(STORAGE_EVENT_KEY, STORAGE_EVENT_DEFAULT_VALUE, {
           sync: false,
