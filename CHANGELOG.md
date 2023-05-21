@@ -1,5 +1,11 @@
 # use-local-storage-safe
 
+## 0.1.2
+
+### Patch Changes
+
+- 98261e7: Updated readme and package.json
+
 ## 0.1.1
 
 ### Patch Changes
