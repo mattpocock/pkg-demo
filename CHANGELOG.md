@@ -1,5 +1,11 @@
 # use-local-storage-safe
 
+## 0.2.1
+
+### Patch Changes
+
+- 73b4a57: Fix peer deps import
+
 ## 0.2.0
 
 ### Minor Changes
