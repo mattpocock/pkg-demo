@@ -15,7 +15,7 @@ dist
 /coverage/lcov-report/sort-arrow-sprite.png
 /coverage/lcov-report/sorter.js
 /.changeset/tidy-mice-impress.md
-/.idea/use-local-storate-safe.iml
+/.idea/use-local-storage-safe.iml
 /.idea/vcs.xml
 /lib/index.d.ts
 /lib/index.js

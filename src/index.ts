@@ -1,5 +1,9 @@
 import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
-import useSyncExternalStoreExports from "use-sync-external-store/shim";
+// import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/shim'
+// This doesn't work in ESM, because use-sync-external-store only exposes CJS.
+// See: https://github.com/pmndrs/valtio/issues/452
+// The following is a workaround until ESM is supported.
+import useSyncExternalStoreExports from "use-sync-external-store/shim/index";
 import { getStoreMock } from "./server-store-mock";
 const { useSyncExternalStore } = useSyncExternalStoreExports;
 
