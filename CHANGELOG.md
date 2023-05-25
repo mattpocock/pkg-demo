@@ -1,5 +1,11 @@
 # use-local-storage-safe
 
+## 0.2.0
+
+### Minor Changes
+
+- 9e8820e: Added ESM workaround
+
 ## 0.1.2
 
 ### Patch Changes
