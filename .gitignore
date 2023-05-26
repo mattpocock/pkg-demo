@@ -20,3 +20,6 @@ dist
 /lib/index.d.ts
 /lib/index.js
 /lib/index.mjs
+/.idea/codeStyles/codeStyleConfig.xml
+/.idea/codeStyles/Project.xml
+/.idea/inspectionProfiles/Project_Default.xml
