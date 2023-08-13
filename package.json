@@ -14,7 +14,7 @@
   "types": "dist/index.d.ts",
   "sideEffects": false,
   "pre-commit": [
-    "build",k
+    "build",
     "lint:fix"
   ],
   "scripts": {
