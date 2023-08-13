@@ -27,33 +27,33 @@ interface Options<T> {
 export function useLocalStorageSafe<T>(
   key: string,
   defaultValue?: T,
-  options?: Options<T>
+  options?: Options<T>,
 ): [T, Dispatch<SetStateAction<T>>];
 
 export function useLocalStorageSafe<T>(
   key: string,
   defaultValue?: T,
-  options?: Options<T>
+  options?: Options<T>,
 ): [T | undefined, Dispatch<SetStateAction<T>>] {
   const store = useMemo(
     () =>
       typeof window === "undefined"
         ? getStoreMock()
         : new ExternalStore<T>(key, defaultValue, options),
-    [key, defaultValue, options]
+    [key, defaultValue, options],
   );
 
   const storageValue = useSyncExternalStore(
     useCallback((listener) => store.subscribe(listener, key), [store, key]),
     () => store.getSnapshot(key),
-    () => defaultValue
+    () => defaultValue,
   );
 
   return [
     storageValue,
     useCallback(
       (value: SetStateAction<T>) => store.setItem(key, value),
-      [key, store]
+      [key, store],
     ),
   ];
 }
@@ -61,6 +61,7 @@ export function useLocalStorageSafe<T>(
 export class ExternalStore<T> {
   public static readonly listeners: Map<string, Set<VoidFunction>> = new Map();
   public static readonly inMemory: Map<string, unknown> = new Map();
+  public static validated = false;
 
   private readonly stringify: (value: unknown) => string = JSON.stringify;
   private readonly parse: (string: string) => string = JSON.parse;
@@ -80,12 +81,17 @@ export class ExternalStore<T> {
       return;
     }
 
-    if (typeof options?.validateInit !== "function") {
+    console.log("ExternalStore.validated", ExternalStore.validated);
+
+    if (
+      typeof options?.validateInit !== "function" ||
+      ExternalStore.validated
+    ) {
       return;
     }
 
     const isValid = options.validateInit(
-      this.getParseableStorageItem<T>(key) as T
+      this.getParseableStorageItem<T>(key) as T,
     );
 
     if (!isValid && defaultValue) {
@@ -93,6 +99,8 @@ export class ExternalStore<T> {
     } else if (!isValid && !defaultValue) {
       localStorage.removeItem(key);
     }
+
+    ExternalStore.validated = true;
   }
 
   public setItem(key: string, valueOrFunction: SetStateAction<T>) {
@@ -192,7 +200,7 @@ export class ExternalStore<T> {
 }
 
 function isFunction<T>(
-  valueOrFunction: unknown
+  valueOrFunction: unknown,
 ): valueOrFunction is (value: T) => boolean {
   return typeof valueOrFunction === "function";
 }

@@ -20,7 +20,7 @@ function Component(properties: {
   const { storageKey, storageDefaultValue, interactive } = properties;
   const [value, setValue] = useLocalStorageSafe<string>(
     storageKey,
-    storageDefaultValue
+    storageDefaultValue,
   );
 
   if (interactive) {
@@ -34,7 +34,10 @@ describe("Server side render", () => {
     const defaultValue = "server default";
 
     const result = Server.renderToString(
-      <Component storageKey={SSR_TEST_KEY} storageDefaultValue={defaultValue} />
+      <Component
+        storageKey={SSR_TEST_KEY}
+        storageDefaultValue={defaultValue}
+      />,
     );
 
     expect(result).toEqual(defaultValue);
@@ -42,7 +45,7 @@ describe("Server side render", () => {
 
   it("should return empty on serve if no default value", () => {
     const result = Server.renderToString(
-      <Component storageKey={SSR_TEST_KEY} />
+      <Component storageKey={SSR_TEST_KEY} />,
     );
 
     expect(result).toEqual("");
@@ -56,7 +59,7 @@ describe("Server side render", () => {
         storageKey={SSR_TEST_KEY}
         storageDefaultValue={defaultValue}
         interactive
-      />
+      />,
     );
 
     expect(result).toEqual(defaultValue);

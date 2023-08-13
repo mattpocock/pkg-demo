@@ -16,7 +16,7 @@ describe("Client side components", () => {
     function Component() {
       const [value, setValue] = useLocalStorageSafe(
         PRESERVE_FUNCTION_LINK_KEY,
-        1
+        1,
       );
 
       useEffect(() => {
@@ -70,7 +70,7 @@ describe("Client side components", () => {
     const { queryByText, queryAllByText } = render(
       <>
         <Component /> <Component2 />
-      </>
+      </>,
     );
 
     expect(queryByText(OLD_VALUE)).not.toBeTruthy();

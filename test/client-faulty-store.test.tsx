@@ -36,7 +36,7 @@ describe("Client faulty store", function () {
             {
               silent: false,
               log: logSpy,
-            }
+            },
           );
         } catch (error) {
           return error;
@@ -57,7 +57,7 @@ describe("Client faulty store", function () {
             {
               silent: false,
               log: logSpy,
-            }
+            },
           );
         } catch (error) {
           return error;
@@ -77,7 +77,7 @@ describe("Client faulty store", function () {
           {
             silent: false,
             log: logSpy,
-          }
+          },
         );
       });
 
@@ -101,8 +101,8 @@ describe("Client faulty store", function () {
           FAULTY_STORE_DEFAULT_VALUE,
           {
             log: logSpy,
-          }
-        )
+          },
+        ),
       );
 
       const [value] = result.current;
@@ -116,7 +116,7 @@ describe("Client faulty store", function () {
       const { result } = renderHook(() =>
         useLocalStorageSafe<string>(FAULTY_STORE_KEY, undefined, {
           log: logSpy,
-        })
+        }),
       );
 
       const [value] = result.current;
@@ -134,8 +134,8 @@ describe("Client faulty store", function () {
           {
             log: logSpy,
             validateInit: validateSpy,
-          }
-        )
+          },
+        ),
       );
 
       const [value] = result.current;
@@ -151,8 +151,8 @@ describe("Client faulty store", function () {
       const { result } = renderHook(() =>
         useLocalStorageSafe<string>(
           FAULTY_STORE_KEY,
-          FAULTY_STORE_DEFAULT_VALUE
-        )
+          FAULTY_STORE_DEFAULT_VALUE,
+        ),
       );
 
       const [, setState] = result.current;
