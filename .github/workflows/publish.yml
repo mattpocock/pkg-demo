@@ -1,15 +1,14 @@
 name: Publish
 on:
   workflow_run:
-    workflows: [CI]
-    branches: [main]
-    types: [completed]
+    workflows: ["CI"]
+    types:
+      - completed
+  push:
+    branches:
+      - "main"
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
-
-permissions:
-  contents: write
-  pull-requests: write
 
 jobs:
   publish:
@@ -19,10 +18,10 @@ jobs:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
         with:
-          version: 7
+          version: 8
       - uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 18.x
           cache: "pnpm"
 
       - run: pnpm install --frozen-lockfile
@@ -32,5 +31,5 @@ jobs:
         with:
           publish: pnpm run release
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GHP_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
