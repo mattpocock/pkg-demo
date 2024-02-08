@@ -1,18 +1,11 @@
 {
   "name": "friendly-logger",
-<<<<<<< Updated upstream
-  "license": "MIT",
-  "version": "0.1.0",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-=======
   "version": "0.1.0",
   "description": "A template for creating npm packages using TypeScript and VSCode",
   "main": "./lib/index.js",
   "files": [
     "lib/**/*"
   ],
->>>>>>> Stashed changes
   "type": "module",
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
