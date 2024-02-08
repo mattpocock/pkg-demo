@@ -1,6 +1,6 @@
-import { FriendlyLoggerI } from "./types.js";
-import toHex from "to-hex";
-import chalk from "chalk";
+import { FriendlyLoggerI } from './types.js';
+import toHex from 'to-hex';
+import chalk from 'chalk';
 
 /**
  * Friendly logger that logs messages to the console
@@ -19,7 +19,7 @@ export default function FriendlyLogger({ logLevels, output }: FriendlyLoggerI) {
 
   const funcs: Func = {} as Func;
 
-  LogKeys.forEach((logLevel) => {
+  LogKeys.forEach(logLevel => {
     const timestamp = new Date().toISOString();
     const color: string = toHex(logLevels[logLevel]);
 
@@ -28,7 +28,7 @@ export default function FriendlyLogger({ logLevels, output }: FriendlyLoggerI) {
         const logMessage = `[${timestamp}] - ${logLevel.toUpperCase()}: ${message}`;
 
         console.log(
-          color[0] === "#"
+          color[0] === '#'
             ? chalk.hex(color)(logMessage)
             : chalk.hex(toHex(color))(logMessage)
         );
@@ -41,7 +41,7 @@ export default function FriendlyLogger({ logLevels, output }: FriendlyLoggerI) {
           if (output) output.write(`${logMessage}\n`);
         }
       } catch (error) {
-        console.error("Error logging message:", error);
+        console.error('Error logging message:', error);
       }
     }
 

@@ -1,16 +1,16 @@
-import type { WriteStream } from "fs";
+import type { WriteStream } from 'fs';
 
 export type LogLevelValue =
-  | "trace"
-  | "debug"
-  | "info"
-  | "notice"
-  | "warn"
-  | "error"
-  | "verbose"
-  | "critical"
-  | "alert"
-  | "emergency";
+  | 'trace'
+  | 'debug'
+  | 'info'
+  | 'notice'
+  | 'warn'
+  | 'error'
+  | 'verbose'
+  | 'critical'
+  | 'alert'
+  | 'emergency';
 
 interface LogLevel {
   level: LogLevelValue;
