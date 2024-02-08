@@ -1,0 +1,5 @@
+---
+'friendly-logger': minor
+---
+
+improvements
